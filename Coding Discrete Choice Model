@@ -56,7 +56,9 @@ class ChoiceModels(object):
         v = opt.minimize(objfun, x0=para, jac=None, method='BFGS', 
                           options={'maxiter': 1000, 'disp': True})  
         return {'log_likelihood':-1*v.fun, "Coefficients": v.x, "Var_Cov": v.hess_inv}
+```
 
+```shell
 class BinaryLogit(ChoiceModels):
     def __init__(self, path, file, yname, x=None, z=None, interactions=None):
         df = super().load_data(path, file)
@@ -83,6 +85,11 @@ class BinaryLogit(ChoiceModels):
     def estimation(self, para):
         return super().optimization(self.log_likelihood, para)
 
+
+```
+
+
+```shell
 class MultinomialLogit(ChoiceModels):
 
     # Specify model here    
@@ -137,7 +144,13 @@ class MultinomialLogit(ChoiceModels):
  
     def estimation(self, para):
         return super().optimization(self.mnl_log_likelihood, para)
-    
+
+
+```
+
+
+
+```shell
     
 class NestedLogit(ChoiceModels):  
     
@@ -169,8 +182,12 @@ class NestedLogit(ChoiceModels):
         return super().optimization(self.nl_log_likelihood, para)
 
 
+```
    
-    
+
+```shell
+
+
 if __name__ == '__main__':
     p = r"/Users/jingjiexu/Desktop/514 Econometrics IV"
     f = "assignment 1.txt"
@@ -195,7 +212,8 @@ if __name__ == '__main__':
     nl = NestedLogit(p,f)
     bini = np.zeros(len(nl.X_list))
     res_nl = nl.estimation(bini)
-    
+  
+  ``` 
 
 ```
 
