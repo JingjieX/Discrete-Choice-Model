@@ -1,4 +1,20 @@
 ```shell
+sysuse auto, clear
+
+use "/Users/jingjiexu/Desktop/509 earnings estimation/Earnings estimation/Ready_newdata/ready_newdata.dta"
+
+gen Tinit=67
+gen Tlast=96
+gen ageinit=20
+gen agelast=64
+gen minyrs=20
+
+```
+
+
+
+
+```shell
 
 
 import os
