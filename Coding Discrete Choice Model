@@ -1,12 +1,4 @@
-
-
-Coding
-```jsx
-```
-
-
-```shell
-
+'''DISCRETE CHOICE MODELING'''
 
 import os
 import numpy as np
@@ -21,10 +13,27 @@ class ChoiceModels(object):
         return df
     
     def expand_data(self, df, n):
+        '''
+        Parameters
+        ----------
+        df : a pandas data frame
+            
+        n : Integer
+            Number of times to expand the data
+
+        Returns
+        -------
+        An expanded pandas data frame with a panel structure
+
+        '''
         df['Alt'] = [[str(i) for i in range(n)] for _ in range(len(df))]
         return df.explode('Alt')
     
     def create_choice_attributes(self, df, config):
+        '''
+        This method creates a panel structure of data to estimate the multinomial
+        choice model speficied in the configuration file (config-- a json format file)
+        '''
         # create dependent variable
         y_namelist = list(config['Alternatives']['0'].keys())
         df['choice'] = list(zip(*[df[v] for v in y_namelist]))
@@ -51,6 +60,21 @@ class ChoiceModels(object):
         return {'data': df, "var_names": x_list}
     
     def create_interactions(self, df, interact_list):
+        '''
+        Parameters
+        ----------
+        df : pandas data frame
+            
+        interact_list : a List
+            The list contains pairs of variable names as tuples
+
+        Returns
+        -------
+        df : pandas data frame after adding interactions
+            
+        xz_list : A list of created interactions
+
+        '''
         xz_list = []
         for item in interact_list:
             vname = item[0] + "_" + item[1]
@@ -60,13 +84,27 @@ class ChoiceModels(object):
         
         
     def optimization(self, objfun, para):
+        '''
+        Parameters
+        ----------
+        objfun : a user defined objective function of para
+            
+        para : a 1-D array with the shape (k,), where k is the number of parameters.
+
+        Returns
+        -------
+        dict
+            A dictionary containing estimation results
+
+        '''
         v = opt.minimize(objfun, x0=para, jac=None, method='BFGS', 
                           options={'maxiter': 1000, 'disp': True})  
         return {'log_likelihood':-1*v.fun, "Coefficients": v.x, "Var_Cov": v.hess_inv}
-```
 
-```shell
 class BinaryLogit(ChoiceModels):
+    '''
+    This class is to estimate a binary logit model by MLE.  
+    '''
     def __init__(self, path, file, yname, x=None, z=None, interactions=None):
         df = super().load_data(path, file)
         if x is None:
@@ -84,19 +122,36 @@ class BinaryLogit(ChoiceModels):
         self.y = self.df[yname].to_numpy()
         
     def log_likelihood(self, para):
+        '''
+        Parameters
+        ----------
+        para : array
+            a 1-D array with the shape(k,), where k is the number of model parameters.
+
+        Returns
+        -------
+        res : scalar
+            log-likelihood value
+
+        '''
         xb = np.matmul(self.Xmat, para)
         xb = np.exp(xb)
         xb = xb / (1+xb)
         return (-1/len(xb)) * np.sum(self.y * np.log(xb) + (1-self.y) * np.log(1 - xb))
    
     def estimation(self, para):
+        '''
+        Parameters
+        ----------
+        para : array
+            a 1-D array with the shape(k,), where k is the number of model parameters.
+
+        Returns
+        -------
+        A dictionary of estimation results
+        '''
         return super().optimization(self.log_likelihood, para)
 
-
-```
-
-
-```shell
 class MultinomialLogit(ChoiceModels):
 
     # Specify model here    
@@ -140,6 +195,9 @@ class MultinomialLogit(ChoiceModels):
         self.Xmat = self.df[self.X_list].to_numpy()
                
     def mnl_log_likelihood(self, para):
+        '''
+        This method defines the data log-likelihood from a Multinomial Logit.
+        '''
         df = self.df.copy()
         xb = np.matmul(self.Xmat, para)
         xb = np.exp(xb)
@@ -150,14 +208,17 @@ class MultinomialLogit(ChoiceModels):
         return (-1/len(df))* np.sum(df['log_likelihood'])
  
     def estimation(self, para):
+        '''
+        Parameters
+        ----------
+        para : array
+            a 1-D array with the shape(k,), where k is the number of model parameters.
+        Returns
+        -------
+        A dictionary of estimation results
+        '''
         return super().optimization(self.mnl_log_likelihood, para)
-
-
-```
-
-
-
-```shell
+    
     
 class NestedLogit(ChoiceModels):  
     
@@ -186,15 +247,21 @@ class NestedLogit(ChoiceModels):
         return (-1/len(df))*df['log_likelihood']
     
     def estimation(self, para):
+        '''
+        Parameters
+        ----------
+        para : array
+            a 1-D array with the shape(k,), where k is the number of model parameters.
+
+        Returns
+        -------
+        A dictionary of estimation results
+        '''
         return super().optimization(self.nl_log_likelihood, para)
 
 
-```
    
-
-```shell
-
-
+    
 if __name__ == '__main__':
     p = r"/Users/jingjiexu/Desktop/514 Econometrics IV"
     f = "assignment 1.txt"
@@ -219,17 +286,4 @@ if __name__ == '__main__':
     nl = NestedLogit(p,f)
     bini = np.zeros(len(nl.X_list))
     res_nl = nl.estimation(bini)
-  
-  ``` 
-
-```
-
-
-
-Binary: Optimization terminated successfully. Current function value: 0.528810 Iterations: 34 Function evaluations: 370 Gradient evaluations: 37  
-
-Multinomial: Optimization terminated successfully. Current function value: 0.203781 Iterations: 67 Function evaluations: 748 Gradient evaluations: 68  
-
-Nested:  
-
-Preference Heterogeneity: Multinomial choice models can be used to investigate heterogeneity among commuters based on their joint occupancy/route choices. It is based on the idea that commuters have different preferences for travel time and money costs, and seeks to understand how these preferences influence the mode and route choice decisions. The model would involve the estimation of a set of parameters that describe the trade-off between travel time and money costs for each individual commuter, based on observed data on their mode and route choices. The parameters could then be used to segment the population of commuters into different groups, based on their preferences for these two factors. This information could be used to better understand and predict commuter behavior, and to design more effective policies and interventions aimed at improving the transportation system.
+    
