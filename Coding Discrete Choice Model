@@ -200,6 +200,7 @@ if __name__ == '__main__':
 ```
 
 
+
 Binary: Optimization terminated successfully. Current function value: 0.528810 Iterations: 34 Function evaluations: 370 Gradient evaluations: 37  
 
 Multinomial: Optimization terminated successfully. Current function value: 0.203781 Iterations: 67 Function evaluations: 748 Gradient evaluations: 68  
